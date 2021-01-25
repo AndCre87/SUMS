@@ -3,10 +3,10 @@ Seemingly-Unrelated Multi-State processes: a Bayesian semiparametric approach
 
 # Authors
 
->  Cremaschi Andrea, AStar, SICS, Singapore\\
->  De Iorio M., Yale-NUS College, Singapore\\
->  Argiento R., Universit\'{a} Cattolica del Sacro Cuore, Milano\\
->  Meaney M., AStar, SICS, Singapore \\
+>  Cremaschi Andrea, AStar, SICS, Singapore
+>  De Iorio M., Yale-NUS College, Singapore
+>  Argiento R., Universit\'{a} Cattolica del Sacro Cuore, Milano
+>  Meaney M., AStar, SICS, Singapore
 >  Kee M., AStar, SICS, Singapore
 
 # Description
