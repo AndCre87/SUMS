@@ -1,10 +1,13 @@
-#################################################################################################################
-# EXAMPLE in report #
-#################################################################################################################
+#################################
+# SUMS model: simulated example #
+#################################
 
-## Here we do a fuller simulation from an AntMAN Mixture model where we also have the Markov processes
-## We will try to handle directly different time points for different processes and patients
-## We will try also SM algorithm
+## In this simulated example, we present a simulated example to demonstrate the SUMS model performance and applicability
+
+# Data are sampled using the msm package (Jackson C.H. 2011) from Multi-State processes whose transition rates are covariate-dependent
+# We employ simulated covariates of both time-homogeneous and time-varying (continuous) types
+# The data are then fitted using the proposed SUMS package
+# R commands to produce some summary plots aimed at posterior inference are available
 
 rm(list = ls())
 set.seed(123)
@@ -17,19 +20,17 @@ library("TraMineR")
 #Simulate sensible data
 ######
 
-#Number of patients
+#Number of subjects
 N = 150;
 #Number of response processes
 pY = 2;
 #Number of covariate processes
 pH = 3;
-#Tot number of porcesses
+#Tot number of processes
 p0 = pY+pH;
 
 #Set graph structure(s)
-# d_simul <- 0.25
 G0_simul <- matrix(0, p0, p0)
-# G0_simul[lower.tri(G0_simul)] <- c(runif(p0*(p0-1)/2) <= d_simul)
 G0_simul[1,2] <- 1
 G0_simul[1,3] <- 1
 G0_simul[2,4] <- 1
@@ -38,7 +39,7 @@ G0_simul[4,5] <- 1
 
 G0_simul <- G0_simul + t(G0_simul)
 
-#Assume 2-state responses
+#Number of states for each process
 dY <- c(2, 3)
 dH <- c(2, 3, 2)
 n_states <- list(dY,dH)
@@ -68,13 +69,12 @@ diag(G_simul) <- rep(0,p_tot)
 nu_simul <- 5
 Psi_simul <- diag(p_tot)
 
-#Simulate data
 Omega_simul <- rgwish(nu = nu_simul, Psi = Psi_simul, G = G_simul)
 m_mu_simul <- rep(0,p_tot)
 k0_simul <- 0.1
 mu_simul <- rmvnorm(n = 1, mean = c(m_mu_simul), sigma = solve(k0_simul * Omega_simul))
 
-#We want 3 clusters
+#Sepcify transition rate for 3 clusters
 K_N_simul <- 3
 c_simul <- sample.int(K_N_simul, N, replace = TRUE, prob = c(1/3, 1/6, 1/2))
 # phi_simul <- rmvnorm(n = K_N_simul, mean = c(mu_simul), sigma = solve(Omega_simul))
@@ -100,6 +100,7 @@ lambda_simul <- exp(phi_simul)
 
 
 # Select times of observations
+# In the following, select only some times of observations (Unif <= 0.8), resembling a "missed visit" pattern that could be observed in real data
 T_max <- 30
 n_times_simul <- 8
 times_simul <- round(seq(0, T_max, length = n_times_simul), 2)
@@ -110,14 +111,14 @@ n_times <- matrix(NA, N, p0)
 for(i in 1:N){
   times_i <- list()
   for(ip in 1:p0){
-    times_i[[ip]] <- c(0, times_simul[2:n_times_simul][runif(n_times_simul-1) <= 0.8])
+    times_i[[ip]] <- c(0, times_simul[2:n_times_simul][runif(n_times_simul-1) <= 0.8]) 
   }
   n_times[i,] <- sapply(times_i, length)
   times[[i]] <- times_i
 }
 
 #Transition rates for Y are covariate- and time-dependent
-#Transition rates for processes H are constant (and H are binary processes)
+#Transition rates for processes H are constant
 lambda_Y_tilde_simul <- vector("list", length = N)
 lambda_H_simul <- vector("list", length = N)
 for(i in 1:N){
@@ -134,8 +135,8 @@ for(i in 1:N){
   lambda_H_simul[[i]] <- lambda_H_simul_i
 }
 
-#Constant covariates, but they can differ in each process i,...,pY
-g <- c(2,4) #Simulate age and sex without intercept (it's the lambda_tilde!)
+#Constant covariates, but they can differ in each process 1,...,pY
+g <- c(2,4)
 X <- list()
 
 aux <- matrix(1,N,g[1])
@@ -154,7 +155,6 @@ for(h in 1:pY){
 
 #Time-varying covariates (not random for msm package, no need for averaging)
 #Also depends on the processes
-#Here we put one equal to zero
 q <- c(2,3)
 Z_msm <- vector("list", length = pY)
 Z <- vector("list", length = pY)
@@ -215,10 +215,9 @@ for(i in 1:N){
   lambda_Y_msm[[i]] <- lambda_Y_msm_i
 }
 
-#Generate the data (...a bit tricky with msm...
-#...but we can do it independently and at different times for each process and patient...)
+#Generate the data (...a bit tricky with msm...but we can do it independently and at different times for each process and subject)
 
-#Response process
+#Simulate response process Y
 Y <- vector("list", length = N)
 Y_mat <- array(NA, dim = c(pY, N, n_times_simul))
 for(i in 1:N){
@@ -264,7 +263,7 @@ for(i in 1:N){
 }
 
 
-#Covariate processes
+#Simulate covariate processes H
 H <- vector("list", length = N)
 H_mat <- array(NA, dim = c(pH, N, n_times_simul))
 for(i in 1:N){
@@ -331,7 +330,7 @@ for(l in 1:pH){
 lambda_dist_mat <- YH_om_sum / p0
 
 
-#Interval lengths
+#Lengths of the time intervals
 epsilon <- vector("list", length = N)
 for(i in 1:N){
   times_i <- times[[i]]
@@ -344,7 +343,9 @@ for(i in 1:N){
 
 data <- list(Y = Y, H = H, lambda_dist_mat = lambda_dist_mat, n_states = n_states, n_rates = n_rates, n_times = n_times, epsilon = epsilon, X = X, Z = Z)
 
-## Now that we have the data, we need to initialize the parameters and priors
+
+
+## Now that we have the data, we need to initialize the algorithm specs, parameters and priors
 n_burn1 <- 100
 n_burn2 <- 5000
 n_save <- 2500
@@ -352,6 +353,7 @@ thin <- 2
 n_edges <- 1 #Lets' leave it like this!!!
 threshold <- 1e-8
 
+# For update of allocation variables (Split and Merge algorithm)
 update_c <- TRUE
 SM_alg <- TRUE
 Gibbs_its <- 1
@@ -379,7 +381,7 @@ if(update_Lambda){# We provide hyperparameters for Lambda
   Lambda <- mm
   Lambda_list <- list(update_Lambda = update_Lambda, Lambda = Lambda, a2 = a2, b2 = b2)
 }else{# We fix the values of Lambda
-  Lambda <- 1
+  Lambda <- 0.1
   Lambda_list <- list(update_Lambda = update_Lambda, Lambda = Lambda)
 }
 Param_list <- modifyList(Lambda_list,Param_list)
@@ -396,7 +398,7 @@ if(update_gamma_S){# We provide hyperparameters for gamma_S
   gamma_S <- mm
   gamma_S_list <- list(update_gamma_S = update_gamma_S, gamma_S = gamma_S, a1 = a1, b1 = b1)
 }else{# We fix the values of gamma_S
-  gamma_S <- 1 - 1/mm
+  gamma_S <- 0.1
   gamma_S_list <- list(update_gamma_S = update_gamma_S, gamma_S = gamma_S)
 }
 Param_list <- modifyList(gamma_S_list,Param_list)
@@ -451,7 +453,7 @@ if(size_based_prior){
 }else{#Prior on d
   G_list <- list(size_based_prior = size_based_prior)
   
-  update_d <- TRUE
+  update_d <- FALSE
   if(update_d){
     #Different prior options for d
     d_beta_prior <- TRUE
@@ -469,7 +471,7 @@ if(size_based_prior){
       d_list <- list(update_d = update_d, d_beta_prior = d_beta_prior, a_lambda = a_lambda, d = d)
     }
   }else{# We fix the values of d
-    d <- 0.25
+    d <- 0.1
     d_list <- list(update_d = update_d, d = d)
   }
   Param_list <- modifyList(d_list,Param_list)
@@ -543,11 +545,17 @@ MCMC_output <- DisProgr( data = data, model_list = model_list, Alg_list = Alg_li
 
 
 # #Save output
-# save(MCMC_output, file = "OUTPUT_DiseaseProgr_Mix.RData")
+# save(MCMC_output, file = "OUTPUT_SUMS.RData")
 
 
 
-#Produce plots
+
+
+
+##############
+# Some plots #
+#''''''''''''#
+
 library("fields")
 
 Graph_list <- MCMC_output$Graph_List
@@ -602,51 +610,59 @@ image.plot(G0_simul, col = col_map, breaks = breaks_map, horizontal = TRUE, leng
 
 
 
-# Posterior distribution of d
-d_out <- Graph_list$d_out
-layout(matrix(c(1,2),nrow = 1, ncol = 2))
-hist(d_out, col = "lightblue", main = bquote("Posterior of "~d), breaks = 20)
-plot(d_out, type = "l")
-abline(h = sum(G0_simul)/(2*p0*(p0-1)), lwd = 3, col = "red")
 dev.off()
-
-# Posterior distribution of mu
-mu_out <- MCMC_output$mu_out
-matplot(t(mu_out), type = "l", lty = 1, col = "grey", lwd = 0.75, main = bquote("Posterior samples of "~mu), xlab = "dim",  ylab = "", cex.main = 3, cex.lab = 2, cex.axis = 2)
-for(j in 1:p_tot){
-  lines(c(j,j), quantile(mu_out[,j], probs = c(0.025, 0.975)), col = "blue", lwd = 2, lty = 1)
+# Posterior distribution of d (if random)
+if(update_d){
+  d_out <- Graph_list$d_out
+  layout(matrix(c(1,2),nrow = 1, ncol = 2))
+  hist(d_out, col = "lightblue", main = bquote("Posterior of "~d), breaks = 20)
+  plot(d_out, type = "l")
+  abline(h = sum(G0_simul)/(2*p0*(p0-1)), lwd = 3, col = "red")
+  dev.off()
 }
-# lines(c(1:p_tot), mu_simul, col = "red", lwd = 3)
-lines(c(1:p_tot), colMeans(mu_out), col = "yellow", lwd = 2, lty = 2)
-par(xpd=TRUE)
-legend("topright", legend = c("MCMC", "post mean", "95% CI"), pch = 19, col = c("red", "grey", "yellow", "blue"), bty = "n", cex = 2)
 
-
-# Posterior distribution of m_mu
-m_mu_out <- MCMC_output$m_mu_out
-matplot(t(m_mu_out), type = "l", lty = 1, col = "grey", lwd = 0.75, main = bquote("Posterior samples of "~m[mu]), xlab = "dim",  ylab = "", cex.main = 3, cex.lab = 2, cex.axis = 2)
-for(j in 1:p_tot){
-  lines(c(j,j), quantile(m_mu_out[,j], probs = c(0.025, 0.975)), col = "blue", lwd = 2, lty = 1)
+# Posterior distribution of mu (if random)
+if(update_mu){
+  mu_out <- MCMC_output$mu_out
+  matplot(t(mu_out), type = "l", lty = 1, col = "grey", lwd = 0.75, main = bquote("Posterior samples of "~mu), xlab = "dim",  ylab = "", cex.main = 3, cex.lab = 2, cex.axis = 2)
+  for(j in 1:p_tot){
+    lines(c(j,j), quantile(mu_out[,j], probs = c(0.025, 0.975)), col = "blue", lwd = 2, lty = 1)
+  }
+  # lines(c(1:p_tot), mu_simul, col = "red", lwd = 3)
+  lines(c(1:p_tot), colMeans(mu_out), col = "yellow", lwd = 2, lty = 2)
+  par(xpd=TRUE)
+  legend("topright", legend = c("MCMC", "post mean", "95% CI"), pch = 19, col = c("red", "grey", "yellow", "blue"), bty = "n", cex = 2)
 }
-lines(c(1:p_tot), m_mu_simul, col = "red", lwd = 3)
-lines(c(1:p_tot), colMeans(m_mu_out), col = "yellow", lwd = 2, lty = 2)
-par(xpd=TRUE)
-legend("topright", legend = c("truth", "MCMC", "post mean", "95% CI"), pch = 19, col = c("red", "grey", "yellow", "blue"), bty = "n", cex = 2)
 
 
-# Posterior distribution of k0
-k0_out <- MCMC_output$k0_out
-layout(matrix(c(1,2),nrow = 1, ncol = 2))
-hist(k0_out, col = "lightblue", main = bquote("Posterior of "~k[0]), xlab = "", breaks = 20, freq = FALSE, cex.main = 3, cex.lab = 2, cex.axis = 2)
-plot(k0_out, type = "l")
-abline(h = k0_simul, lwd = 3, col = "red")
+# Posterior distribution of m_mu (if random)
+if(update_m_mu){
+  m_mu_out <- MCMC_output$m_mu_out
+  matplot(t(m_mu_out), type = "l", lty = 1, col = "grey", lwd = 0.75, main = bquote("Posterior samples of "~m[mu]), xlab = "dim",  ylab = "", cex.main = 3, cex.lab = 2, cex.axis = 2)
+  for(j in 1:p_tot){
+    lines(c(j,j), quantile(m_mu_out[,j], probs = c(0.025, 0.975)), col = "blue", lwd = 2, lty = 1)
+  }
+  lines(c(1:p_tot), m_mu_simul, col = "red", lwd = 3)
+  lines(c(1:p_tot), colMeans(m_mu_out), col = "yellow", lwd = 2, lty = 2)
+  par(xpd=TRUE)
+  legend("topright", legend = c("truth", "MCMC", "post mean", "95% CI"), pch = 19, col = c("red", "grey", "yellow", "blue"), bty = "n", cex = 2)
+}
+
+
+# Posterior distribution of k0 (if random)
+if(update_k0){
+  k0_out <- MCMC_output$k0_out
+  layout(matrix(c(1,2),nrow = 1, ncol = 2))
+  hist(k0_out, col = "lightblue", main = bquote("Posterior of "~k[0]), xlab = "", breaks = 20, freq = FALSE, cex.main = 3, cex.lab = 2, cex.axis = 2)
+  plot(k0_out, type = "l")
+  abline(h = k0_simul, lwd = 3, col = "red")
+}
 
 
 
-
+## Posterior distribution of regression coefficients beta
 library("ggplot2")
 
-# Posterior distribution of beta
 beta_out <- MCMC_output$XZ_List$beta_out
 for(h in 1:pY){
   beta_out_h <- array(0, dim = c(g[h],dY[h]*(dY[h] - 1),n_save))
@@ -656,8 +672,8 @@ for(h in 1:pY){
   
   beta_df <- data.frame(dim_g = rep(c(1:(g[h]*dY[h]*(dY[h] - 1))), n_save), beta_vec = c(beta_out_h))
   beta_true_df <- data.frame( x = c(1:(g[h]*dY[h]*(dY[h] - 1))), y = c(beta_simul[[h]]) ) 
-
-    print(
+  
+  print(
     ggplot(beta_df, aes(y = beta_vec, x = factor(dim_g))) + geom_violin(trim = FALSE) +
       geom_point(data = beta_true_df, mapping = aes(x = x, y = y, colour = "red", size = 5), show.legend = FALSE) +
       labs(x = "g^h x dY^h * (dY^h - 1)", y = "", title = bquote("Posterior of "~beta)) +
@@ -666,7 +682,7 @@ for(h in 1:pY){
 }
 
 
-# Posterior distribution of gamma
+## Posterior distribution of regression coefficients gamma
 gamma_out <- MCMC_output$XZ_List$gamma_out
 for(h in 1:pY){
   gamma_out_h <- array(0, dim = c(q[h],dY[h]*(dY[h] - 1),n_save))
@@ -689,17 +705,21 @@ for(h in 1:pY){
 
 #CLUSTERING
 
-# Posterior distribution of gamma_S
-gamma_S_out <- MCMC_output$gamma_S_out
-layout(matrix(c(1,2),nrow = 1, ncol = 2))
-hist(gamma_S_out, col = "lightblue", main = bquote("Posterior of "~gamma[S]), breaks = 20)
-plot(gamma_S_out, type = "l")
+# Posterior distribution of gamma_S (if random)
+if(update_gamma_S){
+  gamma_S_out <- MCMC_output$gamma_S_out
+  layout(matrix(c(1,2),nrow = 1, ncol = 2))
+  hist(gamma_S_out, col = "lightblue", main = bquote("Posterior of "~gamma[S]), breaks = 20)
+  plot(gamma_S_out, type = "l")
+}
 
-# Posterior distribution of Lambda
-Lambda_out <- MCMC_output$Lambda_out
-layout(matrix(c(1,2),nrow = 1, ncol = 2))
-hist(Lambda_out, col = "lightblue", main = bquote("Posterior of "~Lambda), breaks = 20)
-plot(Lambda_out, type = "l")
+# Posterior distribution of Lambda (if random)
+if(update_Lambda){
+  Lambda_out <- MCMC_output$Lambda_out
+  layout(matrix(c(1,2),nrow = 1, ncol = 2))
+  hist(Lambda_out, col = "lightblue", main = bquote("Posterior of "~Lambda), breaks = 20)
+  plot(Lambda_out, type = "l")
+}
 
 # Posterior distribution of K_N
 K_N_out <- MCMC_output$K_N_out
@@ -729,22 +749,20 @@ pij <- (pij + t(pij))
 diag(pij) <- 1
 
 Binder_f <- MCMC_output$Binder_List$Binder_f
-Binder_out <- MCMC_output$Binder_List$Binder_est
+Binder_out <- c(MCMC_output$Binder_List$Binder_est)
 
 sort_ind <- sort(Binder_out, index.return = TRUE)
 sort_ind <- sort_ind$ix
-
-#Measure misclassification by computing the loss function at this iteration (minimum!)
-aux <- pij - 2 * (pij - Const_Binder) * as.matrix(cij[[Binder_ind]])
-aux <-  aux[upper.tri(aux)]
-sum(aux)
 
 
 #PPI's sorted by Binder clustering
 image(pij[sort_ind,sort_ind], pty="s", col = rev(heat.colors(100)), main = "", cex.main = 3, cex.lab = 2, axes = FALSE)
 image.plot(pij[sort_ind,sort_ind], pty="s", col = rev(heat.colors(100)), legend.only = TRUE, horizontal = TRUE, axis.args = list(cex.axis = 2), legend.width = 1)
-dev.off()
 
+
+
+# To check for misclassification
+dev.off()
 library('gplots')
 
 c_simul_col <- rep(0, N)
@@ -757,34 +775,6 @@ pij_sorted <- pij[sort_ind,sort_ind]
 heatmap.2(pij_sorted, dendrogram = "none", labRow = FALSE, labCol = FALSE, Rowv = FALSE, Colv = FALSE, ColSideColors = c_simul_col, RowSideColors = c_simul_col, na.rm = TRUE, key = FALSE, main = "", trace="none", lwid=c(1,5), lhei=c(1,5), col = rev(heat.colors(100)))
 dev.off()
 
-
-#Plot of posterior distribution of parameters in the clusters
-#At each iteration take the mean of rho in each cluster and overlap
-phi_star_out <- MCMC_output$phi_star_out
-K_Binder <- length(unique(Binder_out))
-phi_mean <- array(0,dim = c(K_Binder,p_tot, n_save))
-for(it in 1:n_save){
-  phi_now <- phi_star_out[[it]]
-  for(j_ind in 1:K_Binder){
-    j <- unique(Binder_out)[j_ind]
-    if(length(c_out[it,c(1:N)[Binder_out == j]]) > 1){
-      phi_mean[j_ind,,it] <- colMeans(phi_now[c_out[it,c(1:N)[Binder_out == j]],])
-    }else{
-      phi_mean[j_ind,,it] <- phi_now[c_out[it,c(1:N)[Binder_out == j]],]
-    }
-  }
-}
-
-layout(matrix(c(1:K_Binder), 1, K_Binder, byrow = TRUE))
-par(mar = c(5,5,5,5))
-for(j in 1:K_Binder){
-  matplot(c(1:p_tot), phi_mean[j,,], axes = FALSE, ylim = c(min(phi_mean[j,,]),max(phi_mean[j,,])), type = "l", lty = 1, col = "grey", lwd = 0.75, main = bquote(hat(phi)[.(j)]), xlab = "",  ylab = "", cex.main = 3, cex.lab = 2, cex.axis = 2)
-  lines(c(1:p_tot), rowMeans(phi_mean[j,,]), col = "yellow", lwd = 2, lty = 2)
-  axis(2)
-  axis(1, labels = c(1:p_tot), at = c(1:p_tot), las = 1)
-  matplot(c(1:p_tot), t(phi_star_simul), col = "red", type = "l", lty = 1, lwd = 2, add = TRUE)
-}
-legend("bottomright", legend = c("truth", "MCMC", "post mean"), pch = 19, col = c("red", "grey", "yellow"), bty = "n", cex = 2)
 
 
 
