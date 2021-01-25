@@ -14,7 +14,7 @@ We present a joint semi-parametric model for several possibly related multi-stat
 
 # Contents
 1) R package SUMS
-2) R file .R with simulated example
+2) R file SUMS_Simul_GitHub.R with simulated example
 
 /#################################
 /# SUMS model: simulated example #
