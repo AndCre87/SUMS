@@ -27,8 +27,11 @@ We present a joint semi-parametric model for several possibly related multi-stat
 In this simulated example, we present a simulated example to demonstrate the SUMS model performance and applicability
 
 Data are sampled using the msm package (Jackson C.H. 2011) from Multi-State processes whose transition rates are covariate-dependent
-We employ simulated covariates of both time-homogeneous and time-varying (continuous) types
+
+We employ simulated covariates of both time-homogeneous (categorical and continuous) and time-varying (continuous) types
+
 The data are then fitted using the proposed SUMS package
+
 R commands to produce some summary plots aimed at posterior inference are available
 
 
