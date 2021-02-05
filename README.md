@@ -33,7 +33,7 @@ We employ simulated covariates of both time-homogeneous (categorical and continu
 The data are then fitted using the proposed SUMS package.
 
 Along the setting of the package, the user can specify three different modelling options for the random effect distirbution:
-(i)   Mixture with random number of components (Argiento and De Iorio 2019)__
+(i)   Mixture with random number of components (Argiento and De Iorio 2019)<br>
 (ii)  DP-mixture__
 (iii) Parametric Mixture with one component
 
