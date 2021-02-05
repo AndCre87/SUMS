@@ -32,12 +32,12 @@ Data are sampled using the msm package (Jackson C.H. 2011) from Multi-State proc
 We employ simulated covariates of both time-homogeneous (categorical and continuous) and time-varying (continuous) types.
 The data are then fitted using the proposed SUMS package.
 
-Along the setting of the package, the user can specify three different modelling options for the random effect distirbution:
+Along the setting of the package, the user can specify three different modelling options for the random effect distirbution:<br>
 (i)   Mixture with random number of components (Argiento and De Iorio 2019)<br>
 (ii)  DP-mixture<br>
 (iii) Parametric Mixture with one component
 
-Furthermore, prior elicitation can be selected for the graph inclusion probability eta between:
+Furthermore, prior elicitation can be selected for the graph inclusion probability eta between:<br>
 (i)   Beta prior<br>
 (ii)  Size-based prior (Armstrong et al., 2009)<br>
 (iii) Fixed value of eta
