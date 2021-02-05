@@ -10,7 +10,7 @@
 // Parallel Computation for birth-death rates for double BD-MCMC algorithm
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-arma::vec rates_bdmcmc_dmh( double log_ratio_d, bool size_based_prior, double a_d, double b_d, double size_G0, arma::mat G0, arma::mat Psi, arma::mat Psi_star,
+arma::vec rates_bdmcmc_dmh( double log_ratio_eta, bool size_based_prior, double a_eta, double b_eta, double size_G0, arma::mat G0, arma::mat Psi, arma::mat Psi_star,
                                 arma::mat Omega, arma::mat Omega_tilde, double nu, double nu_star, arma::vec n_states_cum ){
   
   int p0 = G0.n_cols, p_tot = Omega.n_cols;
@@ -118,16 +118,16 @@ arma::vec rates_bdmcmc_dmh( double log_ratio_d, bool size_based_prior, double a_
         log_rate = - log_rate;
         //Prior on graph
         if(size_based_prior){        
-          log_rate += log(a_d + size_G0) - log(b_d + qp0 - size_G0 - 1.0);
+          log_rate += log(a_eta + size_G0) - log(b_eta + qp0 - size_G0 - 1.0);
         }else{
-          log_rate += - log_ratio_d;
+          log_rate += - log_ratio_eta;
         }
       }else{// It is a death event
         //Prior on graph
         if(size_based_prior){
-          log_rate += log(b_d + qp0 - size_G0) - log(a_d + size_G0 - 1.0);
+          log_rate += log(b_eta + qp0 - size_G0) - log(a_eta + size_G0 - 1.0);
         }else{
-          log_rate += log_ratio_d;
+          log_rate += log_ratio_eta;
         }
       }
 

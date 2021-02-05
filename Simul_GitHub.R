@@ -446,35 +446,35 @@ Param_list <- modifyList(k0_list,Param_list)
 #Prior on graph
 size_based_prior <- FALSE
 if(size_based_prior){
-  #The name of the parameters is the same as for d, because it's like marginalizeing wrt d
-  a_d <- 1
-  b_d <- 1
-  G_list <- list(size_based_prior = size_based_prior, a_d = a_d, b_d = b_d)
+  #The name of the parameters is the same as for eta, because it's like marginalizing wrt d
+  a_eta <- 1
+  b_eta <- 1
+  G_list <- list(size_based_prior = size_based_prior, a_eta = a_eta, b_eta = b_eta)
 }else{#Prior on d
   G_list <- list(size_based_prior = size_based_prior)
   
-  update_d <- FALSE
-  if(update_d){
-    #Different prior options for d
-    d_beta_prior <- TRUE
-    if(d_beta_prior){
+  update_eta <- FALSE
+  if(update_eta){
+    #Different prior options for eta
+    eta_beta_prior <- TRUE
+    if(eta_beta_prior){
       mm <- 0.5
       ss <- mm * (1 - mm) / 2 #non-informative enough?
-      a_d <- mm*(mm*(1 - mm)/ss - 1)
-      b_d <- (mm*(1 - mm)^2/ss - (1 - mm))
-      d <- mm
-      d_list <- list(update_d = update_d, d_beta_prior = d_beta_prior, a_d = a_d, b_d = b_d, d = d)
+      a_eta <- mm*(mm*(1 - mm)/ss - 1)
+      b_eta <- (mm*(1 - mm)^2/ss - (1 - mm))
+      eta <- mm
+      eta_list <- list(update_eta = update_eta, eta_beta_prior = eta_beta_prior, a_eta = a_eta, b_eta = b_eta, eta = eta)
     }else{
       a_lambda <- 1
       mm <- 0 #Mean of normal
-      d <- (1 + exp(-mm))^(-1)
-      d_list <- list(update_d = update_d, d_beta_prior = d_beta_prior, a_lambda = a_lambda, d = d)
+      eta <- (1 + exp(-mm))^(-1)
+      eta_list <- list(update_eta = update_eta, eta_beta_prior = eta_beta_prior, a_lambda = a_lambda, eta = eta)
     }
-  }else{# We fix the values of d
-    d <- 0.1
-    d_list <- list(update_d = update_d, d = d)
+  }else{# We fix the values of eta
+    eta <- 0.1
+    eta_list <- list(update_eta = update_eta, eta = eta)
   }
-  Param_list <- modifyList(d_list,Param_list)
+  Param_list <- modifyList(eta_list,Param_list)
 }
 Param_list <- modifyList(G_list,Param_list)
 
@@ -611,12 +611,12 @@ image.plot(G0_simul, col = col_map, breaks = breaks_map, horizontal = TRUE, leng
 
 
 dev.off()
-# Posterior distribution of d (if random)
-if(update_d){
-  d_out <- Graph_list$d_out
+# Posterior distribution of eta (if random)
+if(update_eta){
+  eta_out <- Graph_list$eta_out
   layout(matrix(c(1,2),nrow = 1, ncol = 2))
-  hist(d_out, col = "lightblue", main = bquote("Posterior of "~d), breaks = 20)
-  plot(d_out, type = "l")
+  hist(eta_out, col = "lightblue", main = bquote("Posterior of "~eta), breaks = 20)
+  plot(eta_out, type = "l")
   abline(h = sum(G0_simul)/(2*p0*(p0-1)), lwd = 3, col = "red")
   dev.off()
 }

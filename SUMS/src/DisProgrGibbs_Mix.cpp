@@ -126,27 +126,27 @@ List DisProgrGibbs_Mix(List MCMC_input){
   
   //We have different prior options for Graph
   double n_edges0 = p0 * (p0 - 1) / 2, size_G0 = 0;
-  double a_d = 0.0, b_d = 0.0, d = 0.0, a_lambda = 0.0, d_accept = 0.0, d_count = 0.0, s_d = 0.0, lambda = 0.0, lambda_accept = 0.0, lambda_count = 0.0, s_lambda = 0.0, mu_d = 0.0;
-  bool size_based_prior = Param_list["size_based_prior"], update_d = false, d_beta_prior = false;
+  double a_eta = 0.0, b_eta = 0.0, eta = 0.0, a_lambda = 0.0, eta_accept = 0.0, eta_count = 0.0, s_eta = 0.0, lambda = 0.0, lambda_accept = 0.0, lambda_count = 0.0, s_lambda = 0.0, mu_eta = 0.0;
+  bool size_based_prior = Param_list["size_based_prior"], update_eta = false, eta_beta_prior = false;
   if(size_based_prior){
-    a_d = Param_list["a_d"], b_d = Param_list["b_d"];
-    d = 0.5; // Initialize
+    a_eta = Param_list["a_eta"], b_eta = Param_list["b_eta"];
+    eta = 0.5; // Initialize
   }else{
-    update_d = Param_list["update_d"];
-    if(update_d){
-      d_beta_prior = Param_list["d_beta_prior"];
-      if(d_beta_prior || size_based_prior){
-        a_d = Param_list["a_d"], b_d = Param_list["b_d"];
-        d = 0.5; // Initialize
+    update_eta = Param_list["update_eta"];
+    if(update_eta){
+      eta_beta_prior = Param_list["eta_beta_prior"];
+      if(eta_beta_prior || size_based_prior){
+        a_eta = Param_list["a_eta"], b_eta = Param_list["b_eta"];
+        eta = 0.5; // Initialize
       }else{
         a_lambda = Param_list["a_lambda"];
         lambda = 1.0; // Initialize
-        d = 0.5;
-        s_d = 0.01;
+        eta = 0.5;
+        s_eta = 0.01;
         s_lambda = 0.01;
       }
     }else{
-      d = Param_list["d"];
+      eta = Param_list["eta"];
     }
   }
   
@@ -333,7 +333,7 @@ List DisProgrGibbs_Mix(List MCMC_input){
   List phi_star_out(n_save), S_m_out(n_save), beta_out(n_save), gamma_out(n_save), Y_out(n_save), H_out(n_save);
   arma::cube Omega_out(p_tot,p_tot,n_save,arma::fill::zeros), G_out(p_tot,p_tot,n_save,arma::fill::zeros), G0_out(p0,p0,n_save,arma::fill::zeros);
   arma::mat mu_out(n_save, p_tot, arma::fill::zeros), m_mu_out(n_save, p_tot, arma::fill::zeros), c_out(n_save,N,arma::fill::zeros);
-  arma::vec d_out(n_save, arma::fill::zeros), size_G0_out(n_save, arma::fill::zeros), sum_weights_out(n_save,arma::fill::zeros), u_out(n_save, arma::fill::zeros), K_N_out(n_save,arma::fill::zeros), M_out(n_save,arma::fill::zeros), Lambda_out(n_save,arma::fill::zeros), gamma_S_out(n_save,arma::fill::zeros), k0_out(n_save, arma::fill::zeros), lambda_out(n_save,arma::fill::zeros), mu_d_out(n_save,arma::fill::zeros), Entropy_out(n_save, arma::fill::zeros);
+  arma::vec eta_out(n_save, arma::fill::zeros), size_G0_out(n_save, arma::fill::zeros), sum_weights_out(n_save,arma::fill::zeros), u_out(n_save, arma::fill::zeros), K_N_out(n_save,arma::fill::zeros), M_out(n_save,arma::fill::zeros), Lambda_out(n_save,arma::fill::zeros), gamma_S_out(n_save,arma::fill::zeros), k0_out(n_save, arma::fill::zeros), lambda_out(n_save,arma::fill::zeros), mu_eta_out(n_save,arma::fill::zeros), Entropy_out(n_save, arma::fill::zeros);
   
   // Main Gibbs
   Progress progr(n_tot, true);
@@ -370,7 +370,7 @@ List DisProgrGibbs_Mix(List MCMC_input){
     // nu_star = nu + M + 1;
     double nu_star = nu + M;
     
-    std::tie(Omega, G, G0, size_G0, sum_weights) = ggm_DMH(G, G0, d, size_based_prior, a_d, b_d, size_G0, Ts, Ti, Omega, n_rates_cum, threshold, nu, nu_star, Psi, Psi_star, n_edges);
+    std::tie(Omega, G, G0, size_G0, sum_weights) = ggm_DMH(G, G0, eta, size_based_prior, a_eta, b_eta, size_G0, Ts, Ti, Omega, n_rates_cum, threshold, nu, nu_star, Psi, Psi_star, n_edges);
     
     
     
@@ -434,51 +434,51 @@ List DisProgrGibbs_Mix(List MCMC_input){
     
     
     
-    // Rcout << "d\n";
-    //////////////
-    // Update d //
-    //////////////
+    // Rcout << "eta\n";
+    ////////////////
+    // Update eta //
+    ////////////////
     if(!size_based_prior){
-      if(update_d){
-        if(d_beta_prior){
-          d = R::rbeta(a_d + size_G0, b_d + n_edges0 - size_G0);
+      if(update_eta){
+        if(eta_beta_prior){
+          eta = R::rbeta(a_eta + size_G0, b_eta + n_edges0 - size_G0);
         }else{
-          //Update d \sim logit-Normal(0,lambda^2)
-          double d_new = log(d/(1.0 - d)) + arma::randn() * sqrt(s_d);
-          d_new = 1.0/(1.0 + exp(-d_new));
+          //Update eta \sim logit-Normal(0,lambda^2)
+          double eta_new = log(eta/(1.0 - eta)) + arma::randn() * sqrt(s_eta);
+          eta_new = 1.0/(1.0 + exp(-eta_new));
           
-          double log_ratio_d = size_G0 * (log(d_new) - log(d)) + (n_edges0 - size_G0) * (log(1 - d_new) - log(1 - d)) - .5/pow(lambda,2) * (pow(log(d_new) - log(1 - d_new) - mu_d,2) - pow(log(d) - log(1 - d) - mu_d,2));
+          double log_ratio_eta = size_G0 * (log(eta_new) - log(eta)) + (n_edges0 - size_G0) * (log(1 - eta_new) - log(1 - eta)) - .5/pow(lambda,2) * (pow(log(eta_new) - log(1 - eta_new) - mu_eta,2) - pow(log(eta) - log(1 - eta) - mu_eta,2));
           
-          double accept_d = 1.0;
-          if( arma::is_finite(log_ratio_d) ){
-            if(log_ratio_d < 0){
-              accept_d = exp(log_ratio_d);
+          double accept_eta = 1.0;
+          if( arma::is_finite(log_ratio_eta) ){
+            if(log_ratio_eta < 0){
+              accept_eta = exp(log_ratio_eta);
             }
           }else{
-            accept_d = 0.0;
+            accept_eta = 0.0;
           }
           
-          d_accept += accept_d;
-          d_count ++;
+          eta_accept += accept_eta;
+          eta_count ++;
           
-          if( arma::randu() < accept_d ){
-            d = d_new;
+          if( arma::randu() < accept_eta ){
+            eta = eta_new;
           }
           
-          s_d += pow(it+1,-ADAPT(1))*(accept_d - ADAPT(2));
-          if(s_d > exp(50)){
-            s_d = exp(50);
+          s_eta += pow(it+1,-ADAPT(1))*(accept_eta - ADAPT(2));
+          if(s_eta > exp(50)){
+            s_eta = exp(50);
           }else{
-            if(s_d < exp(-50)){
-              s_d = exp(-50);
+            if(s_eta < exp(-50)){
+              s_eta = exp(-50);
             }
           }
           
           
           
           
-          //Update mu_d (univariate conjugate normal)
-          mu_d = (log(d) - log(1.0 - d))/2 + arma::randn() * sqrt(pow(lambda,2.0)/2.0);
+          //Update mu_eta (univariate conjugate normal)
+          mu_eta= (log(eta) - log(1.0 - eta))/2 + arma::randn() * sqrt(pow(lambda,2.0)/2.0);
           
           
           
@@ -486,7 +486,7 @@ List DisProgrGibbs_Mix(List MCMC_input){
           //Update lambda \sim Cauchy(a)
           double lambda_new = lambda * exp(arma::randn() * sqrt(s_lambda));
           
-          double log_ratio_lambda = log(a_lambda + pow(lambda,2.0)) - log(a_lambda + pow(lambda_new,2.0)) - 0.5 * pow(log(d) - log(1.0 - d) - mu_d,2.0) * (1.0 / pow(lambda_new,2.0) - 1.0 / pow(lambda,2.0));
+          double log_ratio_lambda = log(a_lambda + pow(lambda,2.0)) - log(a_lambda + pow(lambda_new,2.0)) - 0.5 * pow(log(eta) - log(1.0 - eta) - mu_eta,2.0) * (1.0 / pow(lambda_new,2.0) - 1.0 / pow(lambda,2.0));
           
           double accept_lambda = 1.0;
           if( arma::is_finite(log_ratio_lambda) ){
@@ -2026,9 +2026,9 @@ List DisProgrGibbs_Mix(List MCMC_input){
       c_out.row(iter) = c.t();
       
       // Vecs
-      d_out(iter) = d;
+      eta_out(iter) = eta;
       lambda_out(iter) = lambda;
-      mu_d_out(iter) = mu_d;
+      mu_eta_out(iter) = mu_eta;
       size_G0_out(iter) = size_G0;
       sum_weights_out(iter) = sum_weights;
       u_out(iter) = u;
@@ -2058,9 +2058,9 @@ List DisProgrGibbs_Mix(List MCMC_input){
   if(update_gamma_S){
     Rcout << "gamma_S a.r. = " << gamma_S_accept/gamma_S_count << "\n";
   }
-  if(update_d){
-    if(!d_beta_prior){
-      Rcout << "d a.r. = " << d_accept/d_count << "\n";
+  if(update_eta){
+    if(!eta_beta_prior){
+      Rcout << "eta a.r. = " << eta_accept/eta_count << "\n";
       Rcout << "lambda a.r. = " << lambda_accept/lambda_count << "\n";
     }
   }
@@ -2104,7 +2104,7 @@ List DisProgrGibbs_Mix(List MCMC_input){
     Binder_List = List::create(Named("Entropy_out") = Entropy_out);
   }
   
-  List Graph_List = List::create(Named("Omega_out") = Omega_out, Named("G_out") = G_out, Named("G0_out") = G0_out, Named("sizeG0_out") = size_G0_out, Named("sum_weights_out") = sum_weights_out, Named("d_out") = d_out, Named("mu_d_out") = mu_d_out, Named("lambda_out") = lambda_out);
+  List Graph_List = List::create(Named("Omega_out") = Omega_out, Named("G_out") = G_out, Named("G0_out") = G0_out, Named("sizeG0_out") = size_G0_out, Named("sum_weights_out") = sum_weights_out, Named("eta_out") = eta_out, Named("mu_eta_out") = mu_eta_out, Named("lambda_out") = lambda_out);
   
   
   List XZ_List;

@@ -12,7 +12,7 @@
 // Based on Double Metropolis-Hastings
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-ggm_DMH_t ggm_DMH( arma::mat G, arma::mat G0, double d, bool size_based_prior, double a_d, double b_d, double size_G0,
+ggm_DMH_t ggm_DMH( arma::mat G, arma::mat G0, double eta, bool size_based_prior, double a_eta, double b_eta, double size_G0,
               arma::mat Ts, arma::mat Ti, arma::mat Omega, arma::vec n_states_cum, double threshold,
               double nu, double nu_star, arma::mat Psi, arma::mat Psi_star, int n_edges){
   
@@ -23,10 +23,10 @@ ggm_DMH_t ggm_DMH( arma::mat G, arma::mat G0, double d, bool size_based_prior, d
   arma::mat Omega_tilde(p_tot,p_tot);
   
   // Log-prior ratio as for death rate
-  //Can be extended to edge/nodes-dependent probabilties!
-  double log_ratio_d = 0.0;
+  //Can be extended to edge/nodes-dependent probabilities!
+  double log_ratio_eta = 0.0;
   if(!size_based_prior){//Fill with log ratio of prior part for the graph, when proposing a deletion (numerator)
-    log_ratio_d = log(1.0 - d) - log(d);
+    log_ratio_eta = log(1.0 - eta) - log(eta);
   }
 
   for(int i_n = 0; i_n < n_edges; i_n ++){
@@ -34,7 +34,7 @@ ggm_DMH_t ggm_DMH( arma::mat G, arma::mat G0, double d, bool size_based_prior, d
     // sampling from Omega and sigma for double Metropolis-Hastings
     arma::mat Omega_tilde = rgwish_c( nu, Ti, G, threshold);		
 
-    log_rates = rates_bdmcmc_dmh( log_ratio_d, size_based_prior, a_d, b_d, size_G0, G0, Psi, Psi_star, Omega, Omega_tilde, nu, nu_star, n_states_cum );
+    log_rates = rates_bdmcmc_dmh( log_ratio_eta, size_based_prior, a_eta, b_eta, size_G0, G0, Psi, Psi_star, Omega, Omega_tilde, nu, nu_star, n_states_cum );
 
     // Selecting an edge based on birth and death rates
     arma::vec rates = exp(log_rates-max(log_rates));
