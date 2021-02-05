@@ -34,12 +34,12 @@ The data are then fitted using the proposed SUMS package.
 
 Along the setting of the package, the user can specify three different modelling options for the random effect distirbution:
 (i)   Mixture with random number of components (Argiento and De Iorio 2019)<br>
-(ii)  DP-mixture__
+(ii)  DP-mixture<br>
 (iii) Parametric Mixture with one component
 
 Furthermore, prior elicitation can be selected for the graph inclusion probability eta between:
-(i)   Beta prior
-(ii)  Size-based prior (Armstrong et al., 2009)
+(i)   Beta prior<br>
+(ii)  Size-based prior (Armstrong et al., 2009)<br>
 (iii) Fixed value of eta
 
 R commands to produce some summary plots aimed at posterior inference are available.
