@@ -18,20 +18,30 @@ We present a joint semi-parametric model for several possibly related multi-stat
 
 # Contents
 1) R package **SUMS**
-2) R file SUMS_Simul_GitHub.R with simulated example
+The current package allows for additional modelling framework than the one presented in the above-mentioned manuscript. In particular, it allows the implementation of
+
+2) R file SUMS_Simul_GitHub.R with simulated example. In this file, different modelling choices, prior elicitation and hyperparameter selection are available.
 
 /#################################
 /# **SUMS model: simulated example** #
 /#################################
 
-In this simulated example, we present a simulated example to demonstrate the SUMS model performance and applicability
+In this simulated example, we demonstrate the SUMS model performance and applicability.
 
-Data are sampled using the msm package (Jackson C.H. 2011) from Multi-State processes whose transition rates are covariate-dependent
+Data are sampled using the msm package (Jackson C.H. 2011) from Multi-State processes whose transition rates are (if needed) covariate-dependent.
+We employ simulated covariates of both time-homogeneous (categorical and continuous) and time-varying (continuous) types.
+The data are then fitted using the proposed SUMS package.
 
-We employ simulated covariates of both time-homogeneous (categorical and continuous) and time-varying (continuous) types
+Along the setting of the package, the user can specify three different modelling options for the random effect distirbution:
+(i)   Mixture with random number of components (Argiento and De Iorio 2019)
+(ii)  DP-mixture
+(iii) Parametric Mixture with one component
 
-The data are then fitted using the proposed SUMS package
+Furthermore, prior elicitation can be selected for the graph inclusion probability eta between:
+(i)   Beta prior
+(ii)  Size-based prior (Armstrong et al., 2009)
+(iii) Fixed value of eta
 
-R commands to produce some summary plots aimed at posterior inference are available
+R commands to produce some summary plots aimed at posterior inference are available.
 
 
