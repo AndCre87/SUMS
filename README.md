@@ -33,9 +33,7 @@ We employ simulated covariates of both time-homogeneous (categorical and continu
 The data are then fitted using the proposed SUMS package.
 
 Along the setting of the package, the user can specify three different modelling options for the random effect distirbution:
-(i)   Mixture with random number of components (Argiento and De Iorio 2019)\\
-(ii)  DP-mixture\\
-(iii) Parametric Mixture with one component\\
+(i)   Mixture with random number of components (Argiento and De Iorio 2019)\ (ii)  DP-mixture\ (iii) Parametric Mixture with one component\\
 
 Furthermore, prior elicitation can be selected for the graph inclusion probability eta between:
 (i)   Beta prior
