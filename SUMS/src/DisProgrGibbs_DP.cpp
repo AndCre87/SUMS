@@ -809,24 +809,24 @@ List DisProgrGibbs_DP(List MCMC_input){
     
     
     
-    
-    //Rcout << "alpha\n";
-    //////////////////
-    // sample alpha //
-    //////////////////   
-    
-    double alpha_aux = R::rbeta(alpha + 1,N);
-    
-    double pi_alpha1 = a_alpha + K_N - 1;
-    double pi_alpha2 = b_alpha - log(alpha_aux);
-    double pi_alpha = pi_alpha1 / (pi_alpha1 + N * pi_alpha2 );
-    
-    if( arma::randu() < pi_alpha){
-      alpha = arma::randg(arma::distr_param(pi_alpha1 + 1, 1/pi_alpha2));
-    }else{
-      alpha = arma::randg(arma::distr_param(pi_alpha1, 1/pi_alpha2));
+    if(update_alpha){
+      //Rcout << "alpha\n";
+      //////////////////
+      // sample alpha //
+      //////////////////   
+      
+      double alpha_aux = R::rbeta(alpha + 1,N);
+      
+      double pi_alpha1 = a_alpha + K_N - 1;
+      double pi_alpha2 = b_alpha - log(alpha_aux);
+      double pi_alpha = pi_alpha1 / (pi_alpha1 + N * pi_alpha2 );
+      
+      if( arma::randu() < pi_alpha){
+        alpha = arma::randg(arma::distr_param(pi_alpha1 + 1, 1/pi_alpha2));
+      }else{
+        alpha = arma::randg(arma::distr_param(pi_alpha1, 1/pi_alpha2));
+      }
     }
-    
     
     
     
