@@ -85,6 +85,7 @@ List DisProgrGibbs_Param(List MCMC_input){
   arma::mat Psi = Param_list["Psi"];
   
   // Initialize graphs G0 and G as empty
+  bool isempty_graph = Param_list["isempty_graph"];
   arma::mat G0(p0,p0,arma::fill::zeros), G(p_tot,p_tot,arma::fill::zeros);
   // But recall that some edges are forced in graph G!
   // #pragma omp parallel for
@@ -257,7 +258,7 @@ List DisProgrGibbs_Param(List MCMC_input){
   // Initialize matrices and vectors
   arma::uvec setC_all = arma::regspace<arma::uvec>(0,N-1);
   arma::mat Omega(p_tot,p_tot,arma::fill::eye), Sigma = arma::inv_sympd(Omega), Ti = arma::chol( arma::inv_sympd( Psi ) );
-  double sum_weights;
+  double sum_weights = 0.0;
   
   
   //Initialize from P0
@@ -309,8 +310,9 @@ List DisProgrGibbs_Param(List MCMC_input){
     //Cholesky gives upper tri here
     arma::mat Ts = arma::chol( arma::inv_sympd( Psi_star ) );
     
-    std::tie(Omega, G, G0, size_G0, sum_weights) = ggm_DMH(G, G0, eta, size_based_prior, a_eta, b_eta, size_G0, Ts, Ti, Omega, n_rates_cum, threshold, nu, nu_star, Psi, Psi_star, n_edges);
-    
+    if(!isempty_graph){
+      std::tie(Omega, G, G0, size_G0, sum_weights) = ggm_DMH(G, G0, eta, size_based_prior, a_eta, b_eta, size_G0, Ts, Ti, Omega, n_rates_cum, threshold, nu, nu_star, Psi, Psi_star, n_edges);
+    }
     
     
     

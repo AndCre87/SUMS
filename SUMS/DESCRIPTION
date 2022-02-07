@@ -1,6 +1,6 @@
 Package: SUMS
 Type: Package
-Title: Bayesian nonparametric approach to model multiple time-varying categorical data and covariates. Seemingly Unrelated Multi-State models (SUMS)
+Title: Bayesian nonparametric approach to model several semmeingly unrelated multi-state processes. Seemingly Unrelated Multi-State (SUMS) model.
 Version: 1.0
 Date: 2019-09-09
 Author: Who wrote it

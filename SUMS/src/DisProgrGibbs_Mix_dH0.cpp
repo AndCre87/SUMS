@@ -82,6 +82,7 @@ List DisProgrGibbs_Mix_dH0(List MCMC_input){
   arma::mat Psi = Param_list["Psi"];
   
   // Initialize graphs G0 and G as empty
+  bool isempty_graph = Param_list["isempty_graph"];
   arma::mat G0(p0,p0,arma::fill::zeros), G(p_tot,p_tot,arma::fill::zeros);
   // But recall that some edges are forced in graph G!
   // #pragma omp parallel for
@@ -349,8 +350,10 @@ List DisProgrGibbs_Mix_dH0(List MCMC_input){
     // nu_star = nu + M + 1;
     double nu_star = nu + M;
     
-    if(p0 > 1){ // We might want to fit only one process, then no graph is needed
-      std::tie(Omega, G, G0, size_G0, sum_weights) = ggm_DMH(G, G0, eta, size_based_prior, a_eta, b_eta, size_G0, Ts, Ti, Omega, n_rates_cum, threshold, nu, nu_star, Psi, Psi_star, n_edges);
+    if(!isempty_graph){
+      if(p0 > 1){ // We might want to fit only one process, then no graph is needed
+        std::tie(Omega, G, G0, size_G0, sum_weights) = ggm_DMH(G, G0, eta, size_based_prior, a_eta, b_eta, size_G0, Ts, Ti, Omega, n_rates_cum, threshold, nu, nu_star, Psi, Psi_star, n_edges);
+      }
     }
     
     
@@ -1013,8 +1016,8 @@ List DisProgrGibbs_Mix_dH0(List MCMC_input){
       Rcout << "lambda a.r. = " << lambda_accept/lambda_count << "\n";
     }
   }
-
-    
+  
+  
   List Binder_List;
   if(update_c){
     //Compute Binder estimate with equal costs and return it

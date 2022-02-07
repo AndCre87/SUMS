@@ -2,46 +2,46 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 DisProgrCov_Gibbs <- function(MCMC_input) {
-    .Call(`_SUMS_DisProgrCov_Gibbs`, MCMC_input)
+    .Call(`_SUMSbis_DisProgrCov_Gibbs`, MCMC_input)
 }
 
 DisProgrGibbs_DP <- function(MCMC_input) {
-    .Call(`_SUMS_DisProgrGibbs_DP`, MCMC_input)
+    .Call(`_SUMSbis_DisProgrGibbs_DP`, MCMC_input)
 }
 
 DisProgrGibbs_DP_dH0 <- function(MCMC_input) {
-    .Call(`_SUMS_DisProgrGibbs_DP_dH0`, MCMC_input)
+    .Call(`_SUMSbis_DisProgrGibbs_DP_dH0`, MCMC_input)
 }
 
 DisProgrGibbs_Mix <- function(MCMC_input) {
-    .Call(`_SUMS_DisProgrGibbs_Mix`, MCMC_input)
+    .Call(`_SUMSbis_DisProgrGibbs_Mix`, MCMC_input)
 }
 
 DisProgrGibbs_Mix_dH0 <- function(MCMC_input) {
-    .Call(`_SUMS_DisProgrGibbs_Mix_dH0`, MCMC_input)
+    .Call(`_SUMSbis_DisProgrGibbs_Mix_dH0`, MCMC_input)
 }
 
 DisProgrGibbs_Param <- function(MCMC_input) {
-    .Call(`_SUMS_DisProgrGibbs_Param`, MCMC_input)
+    .Call(`_SUMSbis_DisProgrGibbs_Param`, MCMC_input)
 }
 
 DisProgrGibbs_Param_dH0 <- function(MCMC_input) {
-    .Call(`_SUMS_DisProgrGibbs_Param_dH0`, MCMC_input)
+    .Call(`_SUMSbis_DisProgrGibbs_Param_dH0`, MCMC_input)
 }
 
 expmat_Tesch1 <- function(a) {
-    .Call(`_SUMS_expmat_Tesch1`, a)
+    .Call(`_SUMSbis_expmat_Tesch1`, a)
 }
 
 log_dmvnrm_arma <- function(x, mu, Omega) {
-    .Call(`_SUMS_log_dmvnrm_arma`, x, mu, Omega)
+    .Call(`_SUMSbis_log_dmvnrm_arma`, x, mu, Omega)
 }
 
 rgwish_c <- function(nu, Ti, G, threshold) {
-    .Call(`_SUMS_rgwish_c`, nu, Ti, G, threshold)
+    .Call(`_SUMSbis_rgwish_c`, nu, Ti, G, threshold)
 }
 
 rwish <- function(nu, Psi) {
-    .Call(`_SUMS_rwish`, nu, Psi)
+    .Call(`_SUMSbis_rwish`, nu, Psi)
 }
 

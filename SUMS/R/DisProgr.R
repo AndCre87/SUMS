@@ -5,7 +5,6 @@ DisProgr = function( data, model_list, Alg_list, Param_list = NULL ){
   #Extract data from list (names are important!)
   Y_obs <- data$Y
   H_obs <- data$H
-  lambda_dist_mat <- data$lambda_dist_mat
   n_times <- data$n_times
   epsilon <- data$epsilon
   
@@ -91,7 +90,7 @@ DisProgr = function( data, model_list, Alg_list, Param_list = NULL ){
   c_init <- model_list$c_init
   
   #Even if H and dH are NULL you can still pass them
-  MCMC_input <- list(Y_obs = Y_obs, dY = dY, is_NA_Y = is_NA_Y, H_obs = H_obs, dH = dH, is_NA_H = is_NA_H, lambda_dist_mat = lambda_dist_mat, X = X, Z = Z, c_init = c_init, Alg_list = Alg_list, n_rates = n_rates,
+  MCMC_input <- list(Y_obs = Y_obs, dY = dY, is_NA_Y = is_NA_Y, H_obs = H_obs, dH = dH, is_NA_H = is_NA_H, X = X, Z = Z, c_init = c_init, Alg_list = Alg_list, n_rates = n_rates,
                      n_times = n_times, epsilon = epsilon, Param_list = Param_list, is_null_X = is_null_X, is_null_Z = is_null_Z)
   
   #Select Gibbs algorithm

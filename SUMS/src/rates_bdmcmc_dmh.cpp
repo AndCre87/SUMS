@@ -131,6 +131,11 @@ arma::vec rates_bdmcmc_dmh( double log_ratio_eta, bool size_based_prior, double 
         }
       }
 
+      //Apply min condition
+      if(log_rate > 0){
+        log_rate = 0.0;
+      }
+      
       //Fill upper-tri part!
       log_rates(k*(k-1)/2 + h) = log_rate;
     }
