@@ -16,7 +16,7 @@ library("msm")
 library("truncnorm")
 
 ######
-#Simulate data
+#Simulate sensible data
 ######
 
 #Number of subjects
@@ -61,31 +61,10 @@ for(i in 1:p0){
 diag(G0_simul) <- rep(0,p0)
 diag(G_simul) <- rep(0,p_tot)
 
-#Prior specification
-nu_simul <- p_tot + 2
-Psi_simul <- diag(p_tot)
-
-Omega_simul <- rgwish(nu = nu_simul, Psi = Psi_simul, G = G_simul)
-m_mu_simul <- rep(0,p_tot)
-k0_simul <- 0.1
-mu_simul <- rmvnorm(n = 1, mean = c(m_mu_simul), sigma = solve(k0_simul * Omega_simul))
-
-#Use values similar to observed for binary processes (STAI-t, STAI-s, PSQI)
-#Estimated using package msm
-# [[3]]
-# [,1]       [,2]
-# [1,] -0.1233480  0.1233480
-# [2,]  0.3735801 -0.3735801
-# 
-# [[4]]
-# [,1]       [,2]
-# [1,] -0.1143437  0.1143437
-# [2,]  0.2641092 -0.2641092
-# 
-# [[5]]
-# [,1]       [,2]
-# [1,] -0.2082082  0.2082082
-# [2,]  0.3420428 -0.3420428
+#Simulate phi's from the prior (2 clusters)
+Omega_simul <- diag(p_tot) * 10
+Omega_simul[G_simul == 1] <- 2
+chol(Omega_simul)
 
 aux <- c(0.12,0.37,0.11,0.26,0.21,0.34)
 mu_simul <- log(aux)
@@ -93,11 +72,9 @@ mu_simul <- log(aux)
 #Sepcify transition rate for 3 clusters
 K_N_simul <- 2
 c_simul <- sample.int(K_N_simul, N, replace = TRUE, prob = c(1/3, 2/3))
-phi_simul <- rmvnorm(n = K_N_simul, mean = c(mu_simul), sigma = solve(Omega_simul))
 phi_simul <- matrix(0, K_N_simul, p_tot)
-phi_simul[1,] <- log(aux)
-phi_simul[2,] <- log(aux) + 1
-# phi_simul[3,] <- -log(aux) - 4
+phi_simul[1,] <- rmvnorm(n = 1, mean = c(mu_simul), sigma = solve(Omega_simul))
+phi_simul[2,] <- rmvnorm(n = 1, mean = c(mu_simul) + 1, sigma = solve(Omega_simul))
 
 matplot(t(phi_simul), type = "l", lty = 1, lwd = 2)
 lambda_simul <- exp(phi_simul)
